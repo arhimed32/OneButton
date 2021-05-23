@@ -1,3 +1,11 @@
+/*
+ * OneButton.h
+ *
+ *  Created on: May 23, 2021
+ *      Author: arhimed32
+ *      https://github.com/arhimed32/OneButton
+ */
+
 #ifndef INC_ONEBUTTON_H_
 #define INC_ONEBUTTON_H_
 
