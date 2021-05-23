@@ -1,3 +1,11 @@
+/*
+ * OneButton.c
+ *
+ *  Created on: May 23, 2021
+ *      Author: arhimed32
+ *      https://github.com/arhimed32/OneButton
+ */
+
 #include "OneButton.h"
 
 void ob_init(OneButton_t *btn, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState NormState){
