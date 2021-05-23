@@ -20,12 +20,14 @@ extern "C" {
 #define _click_timeout 300
 #define _step_timeout 500
 
-#define bf_press		((uint16_t)0x01)
-#define bf_release	((uint16_t)0x02)
-#define bf_single 	((uint16_t)0x04)
-#define bf_holded		((uint16_t)0x08)
-#define bf_click		((uint16_t)0x10)
-#define bf_step			((uint16_t)0x20)
+typedef enum {
+	bf_press = ((uint16_t)0x01),
+	bf_release = ((uint16_t)0x02),
+	bf_single = ((uint16_t)0x04),
+	bf_holded = ((uint16_t)0x08),
+	bf_click = ((uint16_t)0x10),
+	bf_step = ((uint16_t)0x20)
+} ob_callback_flags;
 
 typedef enum {
 	OB_TICK_NORM=0,
@@ -49,8 +51,8 @@ typedef struct {
 } button_flags;
 #pragma pack(pop)
 
-typedef void (*callbackFunction)(uint16_t flags);
-typedef void (*callbackStepFunction)(void);
+typedef void (*callbackFunction)(ob_callback_flags flags);
+typedef void (*callbackStepFunction)(uint8_t clicks);
 
 typedef struct 
 {
@@ -75,28 +77,28 @@ typedef struct
 	
 } OneButton_t;
 
-void ob_init(OneButton_t *btn, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState NormState); // инициализация кнопки
-void ob_setTickMode(OneButton_t *btn, ob_tick_mode mode);
-void ob_tick(OneButton_t *btn);
-void ob_resetStates(OneButton_t *btn);
-void ob_clearFlags(OneButton_t *btn, uint8_t flags);
+void ob_init(OneButton_t *btn, GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState NormState);    // инициализация структуры-кнопки
+void ob_setTickMode(OneButton_t *btn, ob_tick_mode mode);                                           // (OB_TICK_NORM / OB_TICK_AUTO) ручной или автоматический опрос кнопки функцией ob_tick()
+void ob_tick(OneButton_t *btn);                                                                     // опрос кнопки
+void ob_resetStates(OneButton_t *btn);                                                              // сбрасывает все is-флаги и счётчики
+void ob_clearFlags(OneButton_t *btn, ob_callback_flags flags);                                      // сбрасывает все is-флаги, должно вызываться внутри callbackEvent функции
 
-void ob_attach_callbackEvent(OneButton_t *btn, callbackFunction func);
-void ob_attach_callbackStep(OneButton_t *btn, callbackStepFunction func);
-void ob_detach_callbackEvent(OneButton_t *btn);
-void ob_detach_callbackStep(OneButton_t *btn);
+void ob_attach_callbackEvent(OneButton_t *btn, callbackFunction func);                              // подключить callback метод обработчика событий вида void callbackEvent(ob_callback_flags flags)
+void ob_attach_callbackStep(OneButton_t *btn, callbackStepFunction func);                           // подключить callback метод обработчика шагов вида void callbackStep(void)
+void ob_detach_callbackEvent(OneButton_t *btn);                                                     // отключает ранее установленный callback метод обработчика событий
+void ob_detach_callbackStep(OneButton_t *btn);                                                      // отключает ранее установленный callback метод обработчика шагов
 
-uint8_t ob_isPress(OneButton_t *btn);
-uint8_t ob_isRelease(OneButton_t *btn);
-uint8_t ob_isClick(OneButton_t *btn);
-uint8_t ob_isHolded(OneButton_t *btn);
-uint8_t ob_isHold(OneButton_t *btn); //+
+uint8_t ob_isPress(OneButton_t *btn);                                                               // возвращает 1 при нажатии на кнопку. Сбрасывается после вызова
+uint8_t ob_isRelease(OneButton_t *btn);                                                             // возвращает 1 при отпускании кнопки. Сбрасывается после вызова
+uint8_t ob_isClick(OneButton_t *btn);                                                               // возвращает 1 при клике. Сбрасывается после вызова
+uint8_t ob_isHolded(OneButton_t *btn);                                                              // возвращает 1 при удержании дольше timeout. Сбрасывается после вызова
+uint8_t ob_isHold(OneButton_t *btn);                                                                // возвращает 1 при нажатой кнопке, не сбрасывается
 
-uint8_t ob_isSingle(OneButton_t *btn);
-uint8_t ob_isDouble(OneButton_t *btn);
-uint8_t ob_hasClicks(OneButton_t *btn);
-uint8_t ob_getClicks(OneButton_t *btn);
-uint8_t ob_getHoldClicks(OneButton_t *btn);
+uint8_t ob_isSingle(OneButton_t *btn);                                                              // возвращает 1 при одиночном клике. Сбрасывается после вызова
+uint8_t ob_isDouble(OneButton_t *btn);                                                              // возвращает 1 при двойном клике. Сбрасывается после вызова
+uint8_t ob_hasClicks(OneButton_t *btn);                                                             // проверка на наличие кликов. Сбрасывается после вызова
+uint8_t ob_getClicks(OneButton_t *btn);                                                             // вернуть количество кликов
+uint8_t ob_getHoldClicks(OneButton_t *btn);                                                         // вернуть количество кликов, предшествующее удерживанию
 
 uint8_t ob_isStep(OneButton_t *btn, uint8_t clicks); //+
 

@@ -105,13 +105,18 @@ void ob_tick(OneButton_t *btn){
   }
 
  // обработка шагов и вызов callback функции
- if (!btn->flags.no_callback && btn->callbackStepFunc && btn->flags.step_flag && (thisMls - btn->timer >= btn->step_timeout)) {
-	 btn->timer = thisMls;
-	 btn->callbackStepFunc();
+ if (btn->flags.step_flag && (thisMls - btn->timer >= btn->step_timeout)) {
+	if (!btn->flags.no_callback && btn->callbackStepFunc) {
+		btn->timer = thisMls;
+		btn->callbackStepFunc(btn->counter);
+	} else if (!btn->flags.no_callback && btn->callbackFunc) {
+		btn->timer = thisMls;
+		btn->callbackFunc(bf_step);
+	}
  }
 
  // сброс накликивания
-  if(btn->flags.counter_reset) {
+  if (btn->flags.counter_reset) {
   	btn->last_counter = 0;
   	btn->flags.counter_flag = 0;
   	btn->flags.counter_reset = 0;
@@ -130,7 +135,7 @@ void ob_resetStates(OneButton_t *btn){
 	btn->last_counter = 0;
 }
 
-void ob_clearFlags(OneButton_t *btn, uint8_t flags){
+void ob_clearFlags(OneButton_t *btn, ob_callback_flags flags){
 
 	if (flags & bf_press)   btn->flags.isPress_f = 0;
 	if (flags & bf_release) btn->flags.isRelease_f = 0;
